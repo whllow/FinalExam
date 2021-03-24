@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{/css/global.css}" />
+    <link rel="stylesheet" th:href="@{/css/login.css}" />
+<title>菜鸟教程(runoob.com)</title>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js">
+</script>
+</head>
+<body>
+<b id = "deviceId" th:text="${deviceId}"></b>
+<script>
+    var id = document.getElementById("deviceId").innerText;
+    function clock(){
+        $.ajax({
+            type: "POST",
+            url: "http://localhost:8081/iot/buildLatestData",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(GetJsonData()),
+            dataType: "json",
+            success: function (message) {
+                console.log('success');
+            },
+            error: function (message) {
+                console.log(message);
+            }
+        });
+    }
+
+
+    function GetJsonData() {
+        var deviceId = id;
+        var ph = Math.random() * 14;
+        var tds = Math.random() * 2000;
+        var temperature = Math.random()* 100;
+        var time = new Date();
+        var json = {
+            "deviceId": deviceId,
+            "ph": ph,
+            "tds": tds,
+            "temperature": temperature,
+            "deviceTime": time
+        };
+        return json;
+    }
+    var int=self.setInterval("clock()",10000);
+</script>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.3.1/jquery.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
+<script th:src="@{/js/global.js}"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!doctype html>
+<!--th是模板引擎的写法，将其注入-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>IOT-警告通知</title>
+</head>
+<body>
+<div>
+    <p>
+        <b th:text="${email}">xxx@xxx.com</b>, 您好!
+    </p>
+    <p>
+        现在<b th:text="${deviceId}">设备出现了
+        <b th:href="${Msg}">此链接</b>
+        请及时处理该故障!
+    </p>
+</div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.whllow.iot.dao.DeviceDataMapper">
+    <sql id="selectFields">
+        id,device_id,device_time,ph,tds,temperature
+    </sql>
+
+    <sql id="insertFields">
+        device_id,device_time,ph,tds,temperature
+    </sql>
+
+    <select id="selelctDataByDeviceId" resultType="DeviceData">
+        select <include refid="selectFields"></include>
+        from device_data
+        where device_id = #{deviceId}
+    </select>
+
+
+    <insert id="insertDeviceData" parameterType="DeviceData" keyProperty="deviceId">
+        insert into device_data (<include refid="insertFields"></include>)
+        values(#{deviceId},#{deviceTime},#{ph},#{tds},#{temperature})
+    </insert>
+
+    <select id="selelctDatasByDeviceId" resultType="DeviceData">
+        select <include refid="selectFields"></include>
+        from device_data
+        where device_id = #{deviceId}
+        order by id desc
+        limit 0,20
+    </select>
+
+</mapper>

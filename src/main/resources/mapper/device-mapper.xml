@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.whllow.iot.dao.DeviceMapper">
+    <sql id="selectFields">
+        id,user_id,device_id,status,purpose,other,activation_code,latitude,longitude
+    </sql>
+
+    <sql id="insertFields">
+        user_id,device_id,status,purpose,other,activation_code,latitude,longitude
+    </sql>
+
+    <select id="selectDevicesByUserId" resultType="Device">
+        select <include refid="selectFields"></include>
+        from device
+        where user_id = #{userId}
+    </select>
+
+    <select id="selectDeviceByDeviceId" resultType="Device">
+        select <include refid="selectFields"></include>
+        from device
+        where device_id = #{deviceId}
+    </select>
+
+
+
+</mapper>
