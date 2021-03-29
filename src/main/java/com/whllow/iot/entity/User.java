@@ -2,18 +2,19 @@ package com.whllow.iot.entity;
 
 import java.util.Date;
 
+//用户类
 public class User {
 
-    private int id;
-    private String username;
-    private String password;
-    private String salt;
-    private String email;
-    private int type;
-    private int status;
-    private String activationCode;
-    private String headerUrl;
-    private Date createTime;
+    private int id;//用户ID
+    private String username;//用户名
+    private String password;//密码
+    private String salt;//随机数，增加密码的复杂度
+    private String email;//邮箱
+    private int type;//用户的类型
+    private int status;//用户状态
+    private String activationCode;//激活码
+    private String headerUrl;//头像连接
+    private Date createTime;//用户创建时间
 
     public User(int id, String username, String password, String salt, String email, int type, int status, String activationCode, String headerUrl, Date createTime) {
         this.id = id;

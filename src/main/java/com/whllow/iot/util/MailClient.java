@@ -9,6 +9,12 @@ import org.springframework.stereotype.Component;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+/*
+*
+* 发送邮件
+*
+* */
+
 @Component
 public class MailClient {
 
@@ -18,7 +24,13 @@ public class MailClient {
     private JavaMailSender mailSender;
 
     @Value("${spring.mail.username}")
-    private String from;
+    private String from;//系统邮箱
+
+    /**
+     *
+     *发送邮件 context为内容，Subject为主题，to为 目的邮箱
+     *
+     */
 
     public int sendMail(String context,String subject,String to) {
 

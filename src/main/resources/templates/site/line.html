@@ -52,13 +52,27 @@
     </div>
 </header>
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-<div>
-    <b id = "deviceId" th:text="${deviceId}"></b>
+
+
+<div class="media pb-3 pt-3 mb-3 border-bottom inline">
+    <ul class="inline">
+        <b>设备名称:    </b><b id = "deviceId" th:text="${deviceId}"></b>
+    </ul>
+    <button style="margin: 0px 0px 0px 1000px" id="back">返回</button>
 </div>
+
+
+
+
 <div>
-<div id="phContainer" style="width: 490px;height:400px;;display:inline-block"></div>
-<div id="tdsContainer" style="width: 490px;height:400px;;display:inline-block"></div>
-<div id="temperatureContainer" style="width: 490px;height:400px;;display:inline-block"></div>
+<div id="phContainer" style="width: 430px;height:400px;;display:inline-block"></div>
+<div id="tdsContainer" style="width: 430px;height:400px;;display:inline-block"></div>
+<div id="temperatureContainer" style="width: 430px;height:400px;;display:inline-block"></div>
+</div>
+<div class="display:inline">
+    <b style="margin: 0px 200px 0px 200px">PH</b>
+    <b style="margin: 0px 230px 0px 210px">TDS</b>
+    <b style="margin: 0px 0px 0px 150px">temperature</b>
 </div>
 
 <script type="text/javascript">
@@ -70,6 +84,9 @@
     window.onload=function(){
         init();
     }
+    $('#back').click(function(){
+        window.location.href = CONTEXT_PATH + "/getLatestPage/"+id;
+    });
     function init() {
         var path = CONTEXT_PATH + "/getHistroyData/" + id;
 
@@ -78,12 +95,12 @@
             url: path,
             dataType: "json",
             success: function (data) {
-                for(var i=0;i<data[0].length;i++){
-                    time.push(longToDate(data[0][i]));
+                phData = data[0];
+                tdsData = data[1];
+                temperatureData = data[2];
+                for(var i=0;i<data[3].length;i++){
+                    time.push(longToDate(data[3][i]));
                 }
-                phData = data[1];
-                tdsData = data[2];
-                temperatureData = data[3];
             }
         });
     }
@@ -109,6 +126,13 @@
     }
 
         phOption = {
+        title: {
+            text: 'PH'
+        },
+        tooltip: {
+            trigger: 'axis',
+            showContent: true
+        },
         xAxis: {
             type: 'category',
             boundaryGap: false,
@@ -135,6 +159,13 @@
         ]
     };
         tdsOption = {
+            title: {
+                text: 'TDS'
+            },
+            tooltip: {
+                trigger: 'axis',
+                showContent: true
+            },
             xAxis: {
                 type: 'category',
                 boundaryGap: false,
@@ -159,6 +190,13 @@
             ]
         };
         temperatureOption = {
+            title: {
+                text: 'Temperature'
+            },
+            tooltip: {
+                trigger: 'axis',
+                showContent: true
+            },
             xAxis: {
                 type: 'category',
                 boundaryGap: false,

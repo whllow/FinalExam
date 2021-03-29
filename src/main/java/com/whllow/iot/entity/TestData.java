@@ -1,5 +1,6 @@
 package com.whllow.iot.entity;
 
+//测试类
 public class TestData {
 
     private String deviceId;

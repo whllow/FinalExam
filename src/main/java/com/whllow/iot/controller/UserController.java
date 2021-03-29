@@ -9,8 +9,7 @@ public class UserController {
 
     @RequestMapping(path = "/index",method = RequestMethod.GET)
     public String getIndex(){
-        return "index";
+        return "index";//获取首页
     }
-
 
 }

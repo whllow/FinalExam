@@ -4,6 +4,7 @@ import javax.servlet.http.Cookie;
 
 public class CookieUtil {
 
+    //解析Cookie，并且目标Cookie对应的值
     public static String getValue(Cookie[] cookies, String key){
         if(cookies ==null) return null;
         for(Cookie cookie:cookies){

@@ -1,16 +1,17 @@
 package com.whllow.iot.entity;
 
+//设备基本的信息
 public class Device {
 
-    private int id;
-    private int userId;
-    private String deviceId;
-    private int status;
-    private String purpose;
-    private String other;
-    private String activationCode;
-    private double longitude;
-    private double latitude;
+    private int id;//ID号
+    private int userId;//userID
+    private String deviceId;//设备ID
+    private int status;//设备状态 0为离线，1为正常，2为故障
+    private String purpose;//用途
+    private String other;//备注
+    private String activationCode;//激活码
+    private double longitude;//经度
+    private double latitude;//纬度
 
     public double getLongitude() {
         return longitude;

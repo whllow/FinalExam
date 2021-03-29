@@ -40,6 +40,27 @@ public interface IotConstance {
 
     /**
      *
+     * 维修设备时间
+     *
+     * */
+    int REPAIR_DEVICE_SECONDS = 3600 * 24 * 14;
+
+
+
+
+    /**
+     *
+     * 设备数据有效时间
+     *
+     * */
+    int REPAIR_DEVICEDATA_SECONDS = 10;
+
+
+
+
+
+    /**
+     *
      * Redis key
      *
      *
@@ -54,11 +75,11 @@ public interface IotConstance {
     String PREFIX_WARNING = "warning";
 
 
-    /**
-     *
-     * 维修设备时间
-     *
-     * */
-    int REPAIR_DEVICE_SECONDS = 3600 * 24 * 14;
+
+
+
+
+
+
 
 }

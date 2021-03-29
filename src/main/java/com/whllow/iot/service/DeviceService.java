@@ -15,10 +15,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -54,77 +51,121 @@ public class DeviceService implements IotConstance {
     public Map<String,Object> saveData(DeviceData device){
         Map<String,Object> map = null;
 
-        map = CheckUtil.check(device,new ConstantCheckMethod());
-        //存储数据
+        //策略模式：
+        //ConstantCheckMethod为检测策略，device数据集合，实现了CheckMethod的接口
+        //只要别的检测策略实现了CheckMethod接口，就能很好替换当前的检测，提高了系统的扩展性
+        map = CheckUtil.check(device,new ConstantCheckMethod());//检测单片机测量的数据是否异常
+        //存储数据的key
         String deviceKey = RedisKeyUtil.getDeviceData(device.getDeviceId());
+        //设备状态的key
         String deviceStatusKey = RedisKeyUtil.getDeviceStatus(device.getDeviceId());
+        //尝试从redis中获取设备的信息
         Device tmp = (Device) redisTemplate.opsForValue().get(deviceStatusKey);
 
+
+
+        //更新设备列表的状态
+
+        //redis中没有缓存说明了该设备一开始是离线的，现在要将设备的设置为在线
         if(tmp==null){
-            Device deviceStatus = deviceMapper.selectDeviceByDeviceId(device.getDeviceId());
+            Device deviceStatus = deviceMapper.selectDeviceByDeviceId(device.getDeviceId());//从数据获取设备的一些基本信息
             deviceStatus.setStatus(1);
-            redisTemplate.opsForValue().set(deviceStatusKey,deviceStatus,10,TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(deviceStatusKey,deviceStatus,REPAIR_DEVICEDATA_SECONDS,TimeUnit.SECONDS);
         }else if(map.get("phMsg")!=null||map.get("tdsMsg")!=null||map.get("temperatureMsg")!=null){
             //修改储存在redis中设备（device）中状态，判断为故障。
             tmp.setStatus(2);
-            redisTemplate.opsForValue().set(deviceStatusKey,tmp,10, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(deviceStatusKey,tmp,REPAIR_DEVICEDATA_SECONDS, TimeUnit.SECONDS);
 
+            //记录设备异常
             String deviceWarnKey = RedisKeyUtil.getDeviceWarning(device.getDeviceId());
             Integer a = (Integer)redisTemplate.opsForValue().get(deviceWarnKey);
+            //当一次设备出现异常，需要发送电子邮件提醒设备管理者
+            //在一定的维修时间内，设备的异常数据不会再次发送警告
             if(a == null) {
+                //从数据库中获取设备管理者
                 User user = userMapper.selelctUserById(tmp.getUserId());
+                //创建邮件的内容的对象
                 Context context = new Context();
+                //填充电子邮件模块（templates/mail/warning.html）中email参数
                 context.setVariable("email", user.getEmail());
+                //将错误信息串起来
                 StringBuilder sb = new StringBuilder();
                 if(map.get("phMsg") != null) sb.append(map.get("phMsg")).append(",");
                 if(map.get("tdsMsg") != null) sb.append(map.get("tdsMsg")).append(",");
                 if(map.get("temperatureMsg") != null) sb.append(map.get("temperatureMsg")).append(",");
+
+                //同上
                 context.setVariable("Msg",sb.toString());
                 context.setVariable("deviceId",tmp.getDeviceId());
+                //使用模板引擎将上述的参数注入到模板中
                 String text = templateEngine.process("/mail/warnings", context);
+
+                //发送电子邮件
                 mailClient.sendMail(text, "warning", user.getEmail());
                 redisTemplate.opsForValue().set(deviceWarnKey,1,REPAIR_DEVICE_SECONDS,TimeUnit.SECONDS);
             }
         }else {
+            //刷新设备状态时间
             tmp.setStatus(1);
-            redisTemplate.opsForValue().set(deviceStatusKey,tmp,10, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(deviceStatusKey,tmp,REPAIR_DEVICEDATA_SECONDS, TimeUnit.SECONDS);
         }
 
-        redisTemplate.opsForValue().set(deviceKey,device,10, TimeUnit.SECONDS);
+
+        //将最新的数据缓存到redis中
+        redisTemplate.opsForValue().set(deviceKey,device,REPAIR_DEVICEDATA_SECONDS, TimeUnit.SECONDS);
+        //同步插入MySQL中，进行持久化
         deviceDataMapper.insertDeviceData(device);
 
         return map;
     }
 
-    //获取设备列表
+    //获取对应设备列表
     public List<Device> getDevicesList(){
-        User user = hostHolder.getUser();
+        User user = hostHolder.getUser();//先登录才能查看设备列表
         if(user==null) return null;
+        //从数据库中获取该用户的设备列表
         List<Device> list = deviceMapper.selectDevicesByUserId(user.getId());
+        //如果是空的，就说明了该用户没有任何设备可以管理。
         if(list == null || list.isEmpty()) return list;
+        //对该用户的设备列表的状态，进行修改。
         for(Device device:list){
-            String deviceKey = RedisKeyUtil.getDeviceStatus(device.getDeviceId());
-            Device tmp = (Device)redisTemplate.opsForValue().get(deviceKey);
-            if(tmp!=null) device.setStatus(tmp.getStatus());
+            //获取设备最新的状态的RedisKey
+            String deviceStatusKey = RedisKeyUtil.getDeviceStatus(device.getDeviceId());
+            //查看缓存中设备的状态
+            Device tmp = (Device)redisTemplate.opsForValue().get(deviceStatusKey);
+            //如果缓存中有该设备，就使用缓存中状态来更新设备状态。
+            if(tmp!=null) device.setStatus(tmp.getStatus());//更新当前设备的最新状态
         }
         return list;
     }
 
     //获取设备的历史数据
+    //这个方法有点失误，但是前端调试好，赖得去重写这，其中的逻辑
+    //简单来说，不需要将这些参数分开，只需将数据库获取的数据列表直接返回即可。
     public List<Object> getDevicesDataHistory(String deviceId){
-        User user = hostHolder.getUser();
+        User user = hostHolder.getUser();//先登录才能查看设备列表
         if(user==null) return null;
+
+        //从数据库中获取设备的历史数据，从而绘制成折线图。
         List<DeviceData> datas = deviceDataMapper.selelctDatasByDeviceId(deviceId);
+
+
+        //lists用于存储多个参数的历史数据。
         List<Object> lists = new ArrayList<>();
+
+        //存储多个参数的历史数据的列表
         List<Float> ph = new ArrayList<>();
         List<Float> tds = new ArrayList<>();
         List<Float> temperature = new ArrayList<>();
         List<Date> dates = new ArrayList<>();
-        for(DeviceData data:datas){
-            ph.add(data.getPh());
-            tds.add(data.getTds());
-            temperature.add(data.getTemperature());
-            dates.add(data.getDeviceTime());
+
+        int len = datas.size();
+
+        for(int i=len-1;i>=0;i--){
+            ph.add(datas.get(i).getPh());
+            tds.add(datas.get(i).getTds());
+            temperature.add(datas.get(i).getTemperature());
+            dates.add(datas.get(i).getDeviceTime());
         }
 
         lists.add(ph);
@@ -136,11 +177,14 @@ public class DeviceService implements IotConstance {
 
 
     public List<DeviceData>getMapData(int userId){
+        //将该用户的所有设备的实时数据存储在datas，从而注入前端显示
         List<DeviceData> datas = new ArrayList<>();
+        //获取该用户拥有的设备
         List<Device> deviceList = deviceMapper.selectDevicesByUserId(userId);
         String deviceDataKey = null;
         for(Device device:deviceList){
             deviceDataKey = RedisKeyUtil.getDeviceData(device.getDeviceId());
+            //从Redis中获取最新的数据
             DeviceData data = (DeviceData) redisTemplate.opsForValue().get(deviceDataKey);
             datas.add(data);
         }

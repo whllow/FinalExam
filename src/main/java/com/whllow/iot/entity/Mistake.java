@@ -1,5 +1,5 @@
 package com.whllow.iot.entity;
-
+//未被启用
 public class Mistake {
 
     private int id;

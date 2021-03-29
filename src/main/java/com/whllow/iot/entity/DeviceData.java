@@ -4,11 +4,11 @@ import java.util.Date;
 
 public class DeviceData {
 
-    private String deviceId;
-    private float ph;
-    private float tds;
-    private float temperature;
-    private Date deviceTime;
+    private String deviceId;//设备ID
+    private float ph;//ph值
+    private float tds;//固态颗粒浓度
+    private float temperature;//温度
+    private Date deviceTime;//采集时间
 
     public DeviceData(){}
 

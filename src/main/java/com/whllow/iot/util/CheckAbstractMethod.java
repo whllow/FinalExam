@@ -5,8 +5,10 @@ import com.whllow.iot.entity.DeviceData;
 import java.util.HashMap;
 import java.util.Map;
 
+//检测方法的抽象
 public abstract class CheckAbstractMethod implements CheckMethod{
 
+    //空值判断
     @Override
     public Map<String, Object> checkNull(DeviceData deviceData) {
         Map<String,Object> map = new HashMap<>();
@@ -16,6 +18,7 @@ public abstract class CheckAbstractMethod implements CheckMethod{
         return map;
     }
 
+    //检测的方法
     @Override
     public Map<String, Object> check(DeviceData deviceData) {
         Map<String,Object> map = new HashMap<>();

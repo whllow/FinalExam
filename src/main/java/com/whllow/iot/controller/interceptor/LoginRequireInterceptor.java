@@ -16,22 +16,20 @@ import java.lang.reflect.Method;
 public class LoginRequireInterceptor implements HandlerInterceptor {
 
     @Autowired
-    public HostHolder hostHolder;
+    public HostHolder hostHolder;//用于存储当前用户，防止多线程中用户错乱
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        //前置处理器
         if(handler instanceof HandlerMethod){
             HandlerMethod handlerMethod = (HandlerMethod)handler;
             Method method = handlerMethod.getMethod();
             LoginRequired loginRequired = method.getAnnotation(LoginRequired.class);
-            if(loginRequired !=null&&hostHolder.getUser() == null){
-             response.sendRedirect(request.getContextPath()+"/login");
-             return false;
+            if(loginRequired !=null&&hostHolder.getUser() == null){//判断是否登录了
+             response.sendRedirect(request.getContextPath()+"/login");//没有登录就重定向到登录界面
+             return false;//阻断该次访问
             }
         }
-
-
-
-        return true;
+        return true;//允许继续访问
     }
 }
