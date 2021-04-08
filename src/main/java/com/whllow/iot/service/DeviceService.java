@@ -139,6 +139,46 @@ public class DeviceService implements IotConstance {
         return list;
     }
 
+    public Map<String,Object> addDevice(Device device){
+        Map<String,Object> map = new HashMap<>();
+        Device tmp = deviceMapper.selectDeviceByDeviceId(device.getDeviceId());
+        if(tmp == null){
+            map.put("code",1);
+            map.put("msg","设备不存在");
+        }
+        else if (!tmp.getActivationCode().equals(device.getActivationCode())) {
+            map.put("code",2);
+            map.put("msg","激活码不正确");
+        }else{
+            deviceMapper.updateDeviceById(tmp.getId(),device.getUserId(),
+                    device.getPurpose(),device.getOther(),device.getLatitude(),device.getLongitude());
+            map.put("code",0);
+            map.put("msg","添加成功");
+        }
+        return map;
+    }
+
+    public Map<String,Object> changeDevice(Device device){
+        Map<String,Object> map = new HashMap<>();
+        Device tmp = deviceMapper.selectDeviceByDeviceId(device.getDeviceId());
+        if(tmp == null){
+            map.put("code",1);
+            map.put("msg","设备不存在");
+        }
+       else{
+            deviceMapper.changeDeviceById(tmp.getId(),device.getPurpose(),
+                    device.getOther(),device.getLatitude(),device.getLongitude());
+            map.put("code",0);
+            map.put("msg","修改成功");
+        }
+        return map;
+    }
+
+
+
+
+
+
     //获取设备的历史数据
     //这个方法有点失误，但是前端调试好，赖得去重写这，其中的逻辑
     //简单来说，不需要将这些参数分开，只需将数据库获取的数据列表直接返回即可。

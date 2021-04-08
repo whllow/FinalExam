@@ -7,6 +7,25 @@
 	<title>水质检测系统-实时数据</title>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
 	<script th:src="@{/js/global.js}"></script>
+	<style type="text/css">
+		body {
+			padding: 0;
+			margin: 0;
+			background: #fff
+		}
+		.btn-container{
+			padding: 1em 0;
+			text-align: center;
+		}
+		.btn-container a{
+			display: inline-block;margin: 0.5em;padding: 0.6em 1em;border: 5px solid #1d7db1;font-weight: 700;color: #1d7db1;
+		}
+
+
+
+	</style>
+
+
 </head>
 <body>
 <header class="bg-dark sticky-top" th:replace="index::header">
@@ -53,12 +72,135 @@
 
 <div>
 	<div>
-		<div class="media pb-3 pt-3 mb-3 border-bottom">
-			<ul class="inline">
+		<div class="media pb-3 pt-3 mb-3 border-bottom row">
+			<ul class="inline" style="margin: 0px 800px 0px 0px">
 			<b>用户名:    </b><b th:text="${loginUser.username}"></b>
 				<input type="hidden" id="userId" th:value="${loginUser.id}">
 			</ul>
+			<div class="col-4 text-right">
+				<button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#changeDevice">编辑</button>
+				<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addDevice">添加设备</button>
+			</div>
 		</div>
+
+
+		<div class="modal fade" id="addDevice" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="addDeviceLabel">添加设备</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<form>
+							<div class="form-group">
+								<label for="addUserID" class="col-form-label">用户ID</label>
+								<input type="text" class="form-control" id="addUserID" th:value="${loginUser.id}">
+							</div>
+							<div class="form-group">
+								<label for="addDeviceID" class="col-form-label">设备名</label>
+								<input type="text" class="form-control" id="addDeviceID">
+							</div>
+							<div class="form-group">
+								<label for="addActivationCode" class="col-form-label">激活码</label>
+								<input type="text" class="form-control" id="addActivationCode">
+							</div>
+							<div class="form-group">
+								<label for="addPurpose" class="col-form-label">设备用途</label>
+								<input type="text" class="form-control" id="addPurpose">
+							</div>
+							<div class="form-group">
+								<label for="addOther" class="col-form-label">备注</label>
+								<input type="text" class="form-control" id="addOther">
+							</div>
+							<div class="form-group">
+								<label for="addLatitude" class="col-form-label">纬度</label>
+								<input type="text" class="form-control" id="addLatitude">
+							</div>
+							<div class="form-group">
+								<label for="addLongitude" class="col-form-label">经度</label>
+								<input type="text" class="form-control" id="addLongitude">
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+						<button type="button" class="btn btn-primary" id="add">添加设备</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- 提示框 -->
+		<div class="modal fade" id="addHintModal" tabindex="-1" role="dialog" aria-labelledby="hintModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="addHintModalLabel">提示</h5>
+					</div>
+					<div class="modal-body" id="addHintBody">
+						发送完毕!
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="modal fade" id="changeDevice" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="changeModalLabel">编辑设备</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<form>
+							<div class="form-group">
+								<label for="changeDeviceID" class="col-form-label">设备名</label>
+								<input type="text" class="form-control" id="changeDeviceID">
+							</div>
+							<div class="form-group">
+								<label for="changePurpose" class="col-form-label">设备用途</label>
+								<input type="text" class="form-control" id="changePurpose">
+							</div>
+							<div class="form-group">
+								<label for="changeOther" class="col-form-label">备注</label>
+								<input type="text" class="form-control" id="changeOther">
+							</div>
+							<div class="form-group">
+								<label for="changeLatitude" class="col-form-label">纬度</label>
+								<input type="text" class="form-control" id="changeLatitude">
+							</div>
+							<div class="form-group">
+								<label for="changeLongitude" class="col-form-label">经度</label>
+								<input type="text" class="form-control" id="changeLongitude">
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+						<button type="button" class="btn btn-primary" id="change">编辑</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- 提示框 -->
+		<div class="modal fade" id="changeHintModal" tabindex="-1" role="dialog" aria-labelledby="hintModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="changeHintModalLabel">提示</h5>
+					</div>
+					<div class="modal-body" id="changeHintBody">
+						发送完毕!
+					</div>
+				</div>
+			</div>
+		</div>
+
 
 
 		<ul class="inline">
@@ -207,6 +349,6 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
 <script th:src="@{/js/global.js}"></script>
 <script th:src="@{/js/index.js}"></script>
-
+<script th:src="@{/js/device.js}"></script>
 </body>
 </html>

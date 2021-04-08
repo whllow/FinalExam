@@ -23,7 +23,14 @@
         from device
         where device_id = #{deviceId}
     </select>
-
+    <update id="updateDeviceById">
+        update device set user_id = #{userId},purpose = #{purpose},
+        other = #{other},longitude = #{longitude},latitude = #{latitude} where id = #{id}
+    </update>
+    <update id="changeDeviceById">
+        update device set purpose = #{purpose},other = #{other},longitude = #{longitude},
+        latitude = #{latitude} where id = #{id}
+    </update>
 
 
 </mapper>

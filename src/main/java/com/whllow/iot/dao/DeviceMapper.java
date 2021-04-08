@@ -19,4 +19,8 @@ public interface DeviceMapper {
     //通过设备ID来获取设备的基本信息
     Device selectDeviceByDeviceId(String deviceId);
 
+    int updateDeviceById(int id,int userId,String purpose,
+                         String other,double latitude,double longitude);
+
+    int changeDeviceById(int id, String purpose, String other, double latitude, double longitude);
 }

@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -57,6 +58,31 @@ public class DeviceController implements IotConstance {
         str = IotUntil.getJSONString(Collections.singletonList(lists));
         return str;
     }
+
+    /**
+     *
+     * 添加设备
+     *
+     * */
+    @RequestMapping(path = "/addDevice",method = RequestMethod.POST)
+    @ResponseBody
+    public String addDevice(Device device){
+        Map<String,Object> map = deviceService.addDevice(device);
+        return IotUntil.getJSONString((int)map.get("code"),(String)map.get("msg"));
+    }
+    /**
+     *
+     * 编辑设备
+     *
+     * */
+    @RequestMapping(path = "/changeDevice",method = RequestMethod.POST)
+    @ResponseBody
+    public String changeDevice(Device device){
+        Map<String,Object> map = deviceService.changeDevice(device);
+        return IotUntil.getJSONString((int)map.get("code"),(String)map.get("msg"));
+    }
+
+
 
 
 

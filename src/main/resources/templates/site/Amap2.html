@@ -174,6 +174,7 @@
     var textLocation = 'right';
     var pixel = new AMap.Pixel(20, 20);
     var markers = [];
+    var circles = [];
     for(var i = 0;i<initData.length;i++){
         longitude = initData[i].longitude;
         latitude = initData[i].latitude;
@@ -190,12 +191,36 @@
             direction: textLocation //设置文本标注方位
         });
 
+        var circle = new AMap.Circle({
+            center: [longitude, latitude],
+            radius: 50, //半径
+            borderWeight: 3,
+            strokeColor: "#FF33FF",
+            strokeOpacity: 1,
+            strokeWeight: 6,
+            strokeOpacity: 0.2,
+            fillOpacity: 0.4,
+            strokeStyle: 'dashed',
+            strokeDasharray: [10, 10],
+            // 线样式还支持 'dashed'
+            fillColor: '#59aafc',
+            zIndex: 50
+        })
+
+        circle.setMap(map);
+        // 缩放地图到合适的视野级别
+      //  map.setFitView([ circle ]);
+
+
+        circles.push(circle);
+
+
         map.add(marker);
         markers.push(marker);
     }
 
 
-
+    var circleColor = '#59aafc';
     var user  = [[${loginUser}]];
     var id = user.id;
     function clock(){
@@ -215,11 +240,19 @@
                     str += "  ph:" + datas[0][j].ph + "</br>";
                     str += "  time:" + longToDate(datas[0][j].deviceTime);
                     deviceId = datas[0][j].deviceId;
+
+                    if((datas[0][j].temperature>30||datas[0][j].temperature<5)||
+                        (datas[0][j].tds>600)||(datas[0][j].ph>9.0||datas[0][j].ph<8.0))
+                        circleColor = "#fc0f1d";
+                    else
+                        circleColor = "#3bfc2d";
+
                     for (var i = 0; i < markers.length; i++){
                         if(markers[i].getTitle()==deviceId){
                             label = markers[i].getLabel();
                             label.content = str+"</div>";
                             markers[i].setLabel(label);
+                            circles[i].setOptions({fillColor:circleColor})
                             break;
                         }
                     }
