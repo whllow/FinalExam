@@ -13,6 +13,10 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>iot</name>
 	<description>iot project for finalExam</description>
+	<packaging>war</packaging>
+
+
+
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
@@ -132,11 +136,6 @@
 			<version>1.2.73</version>
 		</dependency>
 
-		<dependency>
-			<groupId>net.sf.json-lib</groupId>
-			<artifactId>json-lib</artifactId>
-			<version>2.4</version>
-		</dependency>
 
 
 
@@ -149,12 +148,19 @@
 	</dependencies>
 
 	<build>
+		<finalName>ROOT</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.4.3</version>
+			</plugin>
 		</plugins>
+
 	</build>
 
 </project>

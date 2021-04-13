@@ -1,22 +1,36 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="utf-8">
+    <meta charset="utf-8">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{/css/global.css}" />
     <link rel="stylesheet" th:href="@{/css/login.css}" />
-<title>菜鸟教程(runoob.com)</title>
-<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js">
-</script>
+    <title>虚拟设备</title>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js">
+    </script>
 </head>
 <body>
-<b id = "deviceId" th:text="${deviceId}"></b>
+<div>
+    <b id = "deviceId" th:text="${deviceId}"></b>
+</div>
+<div style="display:inline">
+    <b>ph</b><input type="number" name="quantity" id = "ph">
+</div>
+<div style="display:inline">
+    <b>tds</b><input type="number" name="quantity" id = "tds">
+</div>
+<div style="display:inline">
+    <b>temperature</b><input type="number" name="quantity" id = "temperature">
+</div>
+<script th:src="@{/js/global.js}"></script>
 <script>
     var id = document.getElementById("deviceId").innerText;
+    var Url = CONTEXT_PATH+"/getData";
     function clock(){
+
         $.ajax({
             type: "POST",
-            url: "http://localhost:8081/iot/buildLatestData",
+            url: Url,
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(GetJsonData()),
             dataType: "json",
@@ -32,9 +46,10 @@
 
     function GetJsonData() {
         var deviceId = id;
-        var ph =  Math.random()*2 +7.0;
-        var tds = Math.random()* 700;
-        var temperature = Math.random()* 40 + 5.0;
+
+        var ph =  Math.random()*2 +document.getElementById("ph").value;
+        var tds = document.getElementById("tds").value;
+        var temperature = Math.random()* 40 +document.getElementById("temperature").value;
         var time = new Date();
         var json = {
             "deviceId": deviceId,
@@ -51,6 +66,6 @@
 <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.3.1/jquery.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
-<script th:src="@{/js/global.js}"></script>
+
 </body>
 </html>

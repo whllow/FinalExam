@@ -9,6 +9,8 @@ import com.whllow.iot.service.DeviceService;
 import com.whllow.iot.util.HostHolder;
 import com.whllow.iot.util.IotUntil;
 import com.whllow.iot.util.RedisKeyUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
@@ -17,12 +19,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
 public class DeviceController implements IotConstance {
 
+
+    private static final Logger logger = LoggerFactory.getLogger(DeviceController.class);
 
     @Autowired
     public DeviceService deviceService;
@@ -185,9 +190,10 @@ public class DeviceController implements IotConstance {
      *   存储数据
      * */
 
-    @RequestMapping(path = "/buildLatestData",method = RequestMethod.POST)
+    @RequestMapping(path = "/getData",method = RequestMethod.POST)
     @ResponseBody
-    public String getData(DeviceData device,@RequestBody String data){
+    public String getData(@RequestBody String data){
+
         //解析mqtt服务器转发的JSON数据。
         JSONObject outJson = JSONObject.parseObject(data);
 
@@ -205,8 +211,40 @@ public class DeviceController implements IotConstance {
         return "ok";
     }
 
+    @RequestMapping(path = "/getMqtt",method = RequestMethod.POST)
+    @ResponseBody
+    public String getMqtt(@RequestBody String data){
 
 
+        //解析mqtt服务器转发的JSON数据。
+        JSONObject jsonObject = JSONObject.parseObject(data);
+        JSONObject outJson = (JSONObject) jsonObject.get("payload");
+        //存储数据到对象中
+        DeviceData deviceData = new DeviceData();
+        deviceData.setDeviceId(outJson.getString("deviceId"));
+        deviceData.setPh(outJson.getFloat("ph"));
+        deviceData.setTds(outJson.getFloat("tds"));
+        deviceData.setTemperature(outJson.getFloat("temperature"));
+        deviceData.setDeviceTime(outJson.getDate("deviceTime"));
+        //将数据存入数据库中。
+        Map<String,Object> map = deviceService.saveData(deviceData);
+
+        return "ok";
+    }
+
+
+    @RequestMapping(path = "/test",method = RequestMethod.POST)
+    @ResponseBody
+    public String test(@RequestBody String data){
+        try {
+            FileOutputStream fos = new FileOutputStream("/tmp/a.txt");
+            fos.write(data.getBytes());
+            fos.flush();
+        } catch (IOException e) {
+        e.printStackTrace();
+        }
+        return "ok";
+    }
 
 
 }

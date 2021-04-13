@@ -1,5 +1,5 @@
 
-var CONTEXT_PATH="http://localhost:8081/iot";
+var CONTEXT_PATH="";
 function longToDate(longTime){
 	var dateString = "";
 	var date = new Date();

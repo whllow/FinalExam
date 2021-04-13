@@ -1,6 +1,7 @@
 package com.whllow.iot.service;
 
-import com.sun.jdi.ObjectCollectedException;
+
+import com.whllow.iot.controller.DeviceController;
 import com.whllow.iot.dao.DeviceDataMapper;
 import com.whllow.iot.dao.DeviceMapper;
 import com.whllow.iot.dao.UserMapper;
@@ -9,6 +10,8 @@ import com.whllow.iot.entity.DeviceData;
 import com.whllow.iot.entity.IotConstance;
 import com.whllow.iot.entity.User;
 import com.whllow.iot.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class DeviceService implements IotConstance {
+
+    private static final Logger logger = LoggerFactory.getLogger(DeviceService.class);
 
     @Autowired
     public DeviceDataMapper deviceDataMapper;
@@ -82,6 +87,7 @@ public class DeviceService implements IotConstance {
             //当一次设备出现异常，需要发送电子邮件提醒设备管理者
             //在一定的维修时间内，设备的异常数据不会再次发送警告
             if(a == null) {
+                /*
                 //从数据库中获取设备管理者
                 User user = userMapper.selelctUserById(tmp.getUserId());
                 //创建邮件的内容的对象
@@ -102,6 +108,12 @@ public class DeviceService implements IotConstance {
 
                 //发送电子邮件
                 mailClient.sendMail(text, "warning", user.getEmail());
+                */
+                StringBuilder sb = new StringBuilder();
+                if(map.get("phMsg") != null) sb.append(map.get("phMsg")).append(",");
+                if(map.get("tdsMsg") != null) sb.append(map.get("tdsMsg")).append(",");
+                if(map.get("temperatureMsg") != null) sb.append(map.get("temperatureMsg")).append(",");
+                logger.error(sb.toString());
                 redisTemplate.opsForValue().set(deviceWarnKey,1,REPAIR_DEVICE_SECONDS,TimeUnit.SECONDS);
             }
         }else {
