@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -37,6 +38,9 @@ public class DeviceController implements IotConstance {
 
     @Autowired
     public HostHolder hostHolder;
+
+    @Autowired
+    public SimpleDateFormat simpleDateFormat;
 
 
 
@@ -215,17 +219,23 @@ public class DeviceController implements IotConstance {
     @ResponseBody
     public String getMqtt(@RequestBody String data){
 
-
         //解析mqtt服务器转发的JSON数据。
         JSONObject jsonObject = JSONObject.parseObject(data);
-        JSONObject outJson = (JSONObject) jsonObject.get("payload");
+        JSONObject outJson =  jsonObject.getJSONObject("payload");
         //存储数据到对象中
         DeviceData deviceData = new DeviceData();
         deviceData.setDeviceId(outJson.getString("deviceId"));
         deviceData.setPh(outJson.getFloat("ph"));
         deviceData.setTds(outJson.getFloat("tds"));
         deviceData.setTemperature(outJson.getFloat("temperature"));
-        deviceData.setDeviceTime(outJson.getDate("deviceTime"));
+        String date = outJson.getString("deviceTime");
+        Date d = null;
+        try {
+            d = simpleDateFormat.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        deviceData.setDeviceTime(d);
         //将数据存入数据库中。
         Map<String,Object> map = deviceService.saveData(deviceData);
 
@@ -245,6 +255,25 @@ public class DeviceController implements IotConstance {
         }
         return "ok";
     }
+
+    @RequestMapping(path = "/test2",method = RequestMethod.POST)
+    @ResponseBody
+    public String test2(@RequestBody String data){
+        //解析mqtt服务器转发的JSON数据。
+        JSONObject jsonObject = JSONObject.parseObject(data);
+        JSONObject outJson = jsonObject.getJSONObject("payload");
+        //存储数据到对象中
+        DeviceData deviceData = new DeviceData();
+        deviceData.setDeviceId(outJson.getString("deviceId"));
+        deviceData.setPh(outJson.getFloat("ph"));
+        deviceData.setTds(outJson.getFloat("tds"));
+        deviceData.setTemperature(outJson.getFloat("temperature"));
+        deviceData.setDeviceTime(outJson.getDate("deviceTime"));
+        //将数据存入数据库中。
+        deviceService.error(deviceData.toString());
+        return "ok";
+    }
+
 
 
 }

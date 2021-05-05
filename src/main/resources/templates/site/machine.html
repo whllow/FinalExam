@@ -47,9 +47,9 @@
     function GetJsonData() {
         var deviceId = id;
 
-        var ph =  Math.random()*2 +document.getElementById("ph").value;
+        var ph =  document.getElementById("ph").value + Math.random();
         var tds = document.getElementById("tds").value;
-        var temperature = Math.random()* 40 +document.getElementById("temperature").value;
+        var temperature = document.getElementById("temperature").value+ Math.random() ;
         var time = new Date();
         var json = {
             "deviceId": deviceId,

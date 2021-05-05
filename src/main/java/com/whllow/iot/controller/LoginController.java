@@ -117,7 +117,7 @@ public class LoginController implements IotConstance {
         response.addCookie(cookie);
 
         System.out.println(text);
-
+        userService.kcode(text);
         //通过kaptchaOnwer（随机数）生成一个key，并将上述的验证码存储到redis中，提高访问效率
         String kaptchaKey = RedisKeyUtil.getKaptcha(kaptchaOnwer);
         redisTemplate.opsForValue().set(kaptchaKey,text,60, TimeUnit.SECONDS);

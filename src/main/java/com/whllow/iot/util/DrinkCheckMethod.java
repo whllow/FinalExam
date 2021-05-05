@@ -1,8 +1,9 @@
 package com.whllow.iot.util;
 
-//具体的水样检测方法
-public class ConstantCheckMethod extends CheckAbstractMethod {
+import org.springframework.stereotype.Component;
 
+@Component
+public class DrinkCheckMethod extends CheckAbstractMethod {
     @Override
     public String checkPh(float ph) {
         return null;

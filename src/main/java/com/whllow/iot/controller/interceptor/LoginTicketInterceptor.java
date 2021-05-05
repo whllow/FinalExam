@@ -42,7 +42,7 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
         if(str!=null){
             String key = RedisKeyUtil.getTicket(str);
             LoginTicket ticket = (LoginTicket)redisTemplate.opsForValue().get(key);
-            if(ticket.getStatus() == 0){
+            if(ticket!=null&&ticket.getStatus() == 0){
                 User user = userService.findUserById(ticket.getUserId());//通过User的id去MySQL中，获取User的信息
                 hostHolder.setUser(user);//存储登录对象
             }

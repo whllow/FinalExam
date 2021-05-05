@@ -1,9 +1,12 @@
 package com.whllow.iot;
 
 import com.alibaba.fastjson.JSONObject;
+import com.whllow.iot.controller.DeviceController;
 import com.whllow.iot.entity.Device;
 import com.whllow.iot.util.RedisKeyUtil;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -12,6 +15,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
@@ -19,6 +25,12 @@ class IotApplicationTests {
 
 	@Autowired
 	RedisTemplate<String,Object> redisTemplate;
+
+	@Autowired
+	SimpleDateFormat simpleDateFormat;
+
+	private static final Logger logger = LoggerFactory.getLogger(IotApplicationTests.class);
+
 
 	@Test
 	void contextLoadsADD() {
@@ -38,6 +50,18 @@ class IotApplicationTests {
 		JSONObject outJson = JSONObject.parseObject(data);
 		JSONObject jsonObject = (JSONObject) outJson.get("payload");
 		System.out.println(	jsonObject.getFloat("temperature"));
+	}
+
+	@Test
+	void LoggerTest() {
+		String d = "2021-4-20 9:47:21";
+		Date p= null;
+		try {
+			p = simpleDateFormat.parse(d);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		System.out.println(p);
 	}
 
 }

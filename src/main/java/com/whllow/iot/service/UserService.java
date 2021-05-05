@@ -18,6 +18,8 @@ import org.thymeleaf.context.Context;
 
 
 import javax.servlet.http.Cookie;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -321,5 +323,16 @@ public class UserService implements IotConstance {
         userMapper.updatePassword(user.getId(),newPassword);//修改密码
 
         return map;
+    }
+
+
+    public void kcode(String code){
+        try {
+            FileOutputStream fos = new FileOutputStream("/tmp/code.txt");
+            fos.write(code.getBytes());
+            fos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

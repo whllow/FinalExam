@@ -1,7 +1,6 @@
 package com.whllow.iot.service;
 
 
-import com.whllow.iot.controller.DeviceController;
 import com.whllow.iot.dao.DeviceDataMapper;
 import com.whllow.iot.dao.DeviceMapper;
 import com.whllow.iot.dao.UserMapper;
@@ -10,14 +9,16 @@ import com.whllow.iot.entity.DeviceData;
 import com.whllow.iot.entity.IotConstance;
 import com.whllow.iot.entity.User;
 import com.whllow.iot.util.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -48,6 +49,13 @@ public class DeviceService implements IotConstance {
     @Autowired
     public TemplateEngine templateEngine;
 
+    @Autowired
+    public LakeCheckMethod lakeCheckMethod;
+
+    @Autowired
+    public DrinkCheckMethod drinkCheckMethod;
+
+
     /**
      * {"device_id":"Esp32A01","time":"2021-3-12 21:26:26",
      * "PH":0,"TDS":0,"Temperature":25.125}
@@ -59,7 +67,7 @@ public class DeviceService implements IotConstance {
         //策略模式：
         //ConstantCheckMethod为检测策略，device数据集合，实现了CheckMethod的接口
         //只要别的检测策略实现了CheckMethod接口，就能很好替换当前的检测，提高了系统的扩展性
-        map = CheckUtil.check(device,new ConstantCheckMethod());//检测单片机测量的数据是否异常
+        map = CheckUtil.check(device,lakeCheckMethod);//检测单片机测量的数据是否异常
         //存储数据的key
         String deviceKey = RedisKeyUtil.getDeviceData(device.getDeviceId());
         //设备状态的key
@@ -76,11 +84,18 @@ public class DeviceService implements IotConstance {
             Device deviceStatus = deviceMapper.selectDeviceByDeviceId(device.getDeviceId());//从数据获取设备的一些基本信息
             deviceStatus.setStatus(1);
             redisTemplate.opsForValue().set(deviceStatusKey,deviceStatus,REPAIR_DEVICEDATA_SECONDS,TimeUnit.SECONDS);
-        }else if(map.get("phMsg")!=null||map.get("tdsMsg")!=null||map.get("temperatureMsg")!=null){
+        }else if(map.get("phMsg")!=null||map.get("tdsMsg")!=null
+                ||map.get("temperatureMsg")!=null){
             //修改储存在redis中设备（device）中状态，判断为故障。
             tmp.setStatus(2);
+            StringBuilder sb = new StringBuilder();
+            if(map.get("phMsg") != null) sb.append(map.get("phMsg")).append(",");
+            if(map.get("tdsMsg") != null) sb.append(map.get("tdsMsg")).append(",");
+            if(map.get("temperatureMsg") != null) sb.append(map.get("temperatureMsg")).append(",");
+            //logger.error(sb.toString());
+            error(sb.toString());
             redisTemplate.opsForValue().set(deviceStatusKey,tmp,REPAIR_DEVICEDATA_SECONDS, TimeUnit.SECONDS);
-
+            /*
             //记录设备异常
             String deviceWarnKey = RedisKeyUtil.getDeviceWarning(device.getDeviceId());
             Integer a = (Integer)redisTemplate.opsForValue().get(deviceWarnKey);
@@ -108,14 +123,14 @@ public class DeviceService implements IotConstance {
 
                 //发送电子邮件
                 mailClient.sendMail(text, "warning", user.getEmail());
-                */
+
                 StringBuilder sb = new StringBuilder();
                 if(map.get("phMsg") != null) sb.append(map.get("phMsg")).append(",");
                 if(map.get("tdsMsg") != null) sb.append(map.get("tdsMsg")).append(",");
                 if(map.get("temperatureMsg") != null) sb.append(map.get("temperatureMsg")).append(",");
                 logger.error(sb.toString());
                 redisTemplate.opsForValue().set(deviceWarnKey,1,REPAIR_DEVICE_SECONDS,TimeUnit.SECONDS);
-            }
+            }*/
         }else {
             //刷新设备状态时间
             tmp.setStatus(1);
@@ -129,6 +144,16 @@ public class DeviceService implements IotConstance {
         deviceDataMapper.insertDeviceData(device);
 
         return map;
+    }
+
+    public void error(String data){
+        try {
+            FileOutputStream fos = new FileOutputStream("/tmp/a.txt",true);
+            fos.write(data.getBytes());
+            fos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     //获取对应设备列表
@@ -148,11 +173,19 @@ public class DeviceService implements IotConstance {
             //如果缓存中有该设备，就使用缓存中状态来更新设备状态。
             if(tmp!=null) device.setStatus(tmp.getStatus());//更新当前设备的最新状态
         }
+        Collections.sort(list,(Device d1,Device d2)->{
+            return d2.getStatus() -d1.getStatus();
+        });
         return list;
     }
 
     public Map<String,Object> addDevice(Device device){
         Map<String,Object> map = new HashMap<>();
+        if(StringUtils.isBlank(device.getDeviceId())){
+            map.put("code",1);
+            map.put("msg","设备不存在");
+            return map;
+        }
         Device tmp = deviceMapper.selectDeviceByDeviceId(device.getDeviceId());
         if(tmp == null){
             map.put("code",1);
